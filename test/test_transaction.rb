@@ -40,6 +40,16 @@ module Embulk
         stub(Bigquery).transaction_report { {'num_input_rows' => 1, 'num_output_rows' => 1, 'num_rejected_rows' => 0} }
       end
 
+      def test_reset_file_writers
+        config = least_config.merge('mode' => 'append_direct')
+        any_instance_of(BigqueryClient) do |obj|
+          mock(obj).get_dataset(config['dataset'])
+          mock(obj).get_table(config['table'])
+        end
+        Bigquery.transaction(config, schema, processor_count, &control)
+        assert_true Bigquery.file_writers.empty?
+      end
+
       sub_test_case "append_direct" do
         def test_append_direct
           config = least_config.merge('mode' => 'append_direct')

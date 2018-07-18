@@ -416,6 +416,8 @@ module Embulk
               bigquery.delete_table(task['temp_table'])
             end
           ensure
+            reset_file_writers
+
             if task['delete_from_local_when_job_end']
               paths.each do |path|
                 Embulk.logger.info { "embulk-output-bigquery: delete #{path}" }
